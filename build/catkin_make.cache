@@ -1,0 +1,2 @@
+arbotix_ros/arbotix:arbotix_ros/arbotix_controllers:arbotix_ros/arbotix_firmware:arbotix_ros/arbotix_msgs:arbotix_ros/arbotix_python:arbotix_ros/arbotix_sensors:nav_demo:octomap_mapping/octomap_mapping:octomap_mapping/octomap_server:ship_rviz_gazebo:velodyne_gazebo_plugins:velodyne_simulator
+-DCATKIN_DEVEL_PREFIX=/home/zhanglin/ship_gazebo_ws/devel -DCMAKE_INSTALL_PREFIX=/home/zhanglin/ship_gazebo_ws/install -G Unix Makefiles

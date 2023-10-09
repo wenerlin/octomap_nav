@@ -1,0 +1,8 @@
+prefix=/home/zhanglin/ship_gazebo_ws/install
+
+Name: octomap
+Description: Description of octomap
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

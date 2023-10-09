@@ -1,0 +1,251 @@
+<robot name="mycar" xmlns:xacro="http://wiki.ros.org/xacro">
+
+    <xacro:property name="footprint_radius" value="0.001" />
+    <!-- 1.添加 base_footprint -->
+    <link name="base_footprint">
+        <visual>
+            <geometry>
+                <sphere radius="${footprint_radius}" />
+            </geometry>
+        </visual>
+    </link>
+
+    <!-- 甲板下 -->
+    <xacro:property name="baseA_w" value="0.1" />
+    <xacro:property name="baseA_l" value="0.25" />
+    <xacro:property name="baseA_h" value="0.05" />
+    <xacro:property name="baseA_mass" value="1" />
+    <xacro:property name="lidi" value="0.02" />
+    <xacro:property name="baseA_joint_z" value="${baseA_h / 2 + lidi}" />
+
+    <!-- 2.1 link -->
+    <link name="baseA_link">
+        <visual>
+            <geometry>
+                <box size="${baseA_l} ${baseA_w} ${baseA_h}" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <material name="baseAlink_color">
+                <color rgba="1.0 0.5 0.2 0.5" />
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${baseA_l} ${baseA_w} ${baseA_h}" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+        </collision>
+        <!-- 调用矩阵函数 -->
+        <xacro:Box_inertial_matrix m="${baseA_mass}" l="${baseA_l}" w="${baseA_w}" h="${baseA_h}" />
+    </link>
+    <!-- 颜色 -->
+    <gazebo reference="baseA_link">
+        <material>Gazebo/Red</material>
+    </gazebo>
+    <!-- 2.2 joint -->
+    <joint name="linkA2footprint" type="fixed">
+        <parent link="base_footprint" />
+        <child link="baseA_link" />
+        <origin xyz="0 0 ${baseA_joint_z}" rpy="0 0 0" />
+    </joint>
+
+    <!-- 雷达支杆 -->
+    <xacro:property name="s_radius" value="0.01" />
+    <xacro:property name="s_length" value="0.25" />
+    <xacro:property name="s_mass" value="0.5" />
+    <xacro:property name="s_joint_z" value="${s_length / 2}" />
+
+    <link name="support">
+        <visual>
+            <geometry>
+                <cylinder radius="${s_radius}" length="${s_length}" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <material name="support_color">
+                <color rgba="0 0 0 0.3" />
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${s_radius}" length="${s_length}" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+        </collision>
+        <xacro:cylinder_inertial_matrix m="${s_mass}" r="${s_radius}" h="${s_length}" />
+    </link>
+    <gazebo reference="support">
+        <material>Gazebo/White</material>
+    </gazebo>
+
+    <!-- 3.2 joint -->
+    <joint name="support2link" type="fixed">
+        <parent link="baseA_link" />
+        <child link="support" />
+        <origin xyz="0 0 ${s_joint_z}" rpy="0 0 0" />
+        <axis xyz="0 0 0" />
+    </joint>
+
+    <!-- laser -->
+    <xacro:property name="laser_radius" value="0.02" />
+    <xacro:property name="laser_length" value="0.02" />
+    <xacro:property name="laser_mass" value="0.05" />
+    <xacro:property name="laser_joint_z" value="${s_length / 2 + laser_length / 2}" />
+
+    <link name="laser">
+        <visual>
+            <geometry>
+                <cylinder radius="${laser_radius}" length="${laser_length}" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <material name="laser_color">
+                <color rgba="0 0 0 0.3" />
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${laser_radius}" length="${laser_length}" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+        </collision>
+        <xacro:cylinder_inertial_matrix m="${laser_mass}" r="${laser_radius}" h="${laser_length}" />
+    </link>
+    <gazebo reference="laser">
+        <material>Gazebo/Black</material>
+    </gazebo>
+
+    <!-- 3.2 joint -->
+    <joint name="laser2link" type="fixed">
+        <parent link="support" />
+        <child link="laser" />
+        <origin xyz="0 0 ${laser_joint_z}" rpy="0 0 0" />
+        <axis xyz="0 0 0" />
+    </joint>
+
+    <!-- 前后的两个圆柱y -->
+    <xacro:property name="y_radius" value="0.05" />
+    <xacro:property name="y_length" value="0.05" />
+    <xacro:property name="y_mass" value="1" />
+    <xacro:property name="y_joint_x" value="${baseA_l / 2}" />
+    
+    <xacro:macro name="y_func" params="name flag">
+        <!-- 3.1 link -->
+        <link name="${name}_wheel">
+            <visual>
+                <geometry>
+                    <cylinder radius="${y_radius}" length="${y_length}" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <material name="wheelA_color">
+                    <color rgba="0 0 0 0.3" />
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <cylinder radius="${y_radius}" length="${y_length}" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+            </collision>
+            <xacro:cylinder_inertial_matrix m="${y_mass}" r="${y_radius}" h="${y_length}" />
+        </link>
+        <gazebo reference="${name}_wheel">
+            <material>Gazebo/Red</material>
+        </gazebo>
+
+        <!-- 3.2 joint -->
+        <joint name="${name}2link" type="fixed">
+            <parent link="baseA_link" />
+            <child link="${name}_wheel" />
+            <origin xyz="${(y_joint_x) * flag} 0 0" rpy="0 0 0" />
+            <axis xyz="0 0 0" />
+        </joint>
+    </xacro:macro>
+    <!-- 调用！！！ -->
+    <xacro:y_func name="front" flag="1" />
+    <xacro:y_func name="back" flag="-1" />
+
+    <!-- 3添加驱动轮 -->
+    <!-- 属性的封装 -->
+    <xacro:property name="wheel_radius" value="0.025" />
+    <xacro:property name="wheel_length" value="0.01" />
+    <xacro:property name="wheel_mass" value="0.05" />
+    <xacro:property name="PI" value="3.1415927" />
+    <xacro:property name="wheel_joint_z" value="${lidi}" />
+    
+    <xacro:macro name="wheel_func" params="wheel_name flag">
+        
+        <link name="${wheel_name}_wheel">
+            <visual>
+                <geometry>
+                    <cylinder radius="${wheel_radius}" length="${wheel_length}" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="${PI / 2} 0 0" />
+                <material name="wheelB_color">
+                    <color rgba="0 0 0 0.3" />
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <cylinder radius="${wheel_radius}" length="${wheel_length}" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="${PI / 2} 0 0" />
+            </collision>
+            <xacro:cylinder_inertial_matrix m="${wheel_mass}" r="${wheel_radius}" h="${wheel_length}" />
+        </link>
+        <gazebo reference="${wheel_name}_wheel">
+            <material>Gazebo/Red</material>
+        </gazebo>
+
+        
+        <joint name="${wheel_name}2link" type="continuous">
+            <parent link="baseA_link" />
+            <child link="${wheel_name}_wheel" />
+            <origin xyz="0 ${flag * (baseA_w / 2 + wheel_length / 2)} -0.02" rpy="0 0 0" />
+            <axis xyz="0 1 0" />
+        </joint>
+    </xacro:macro>
+
+    <xacro:wheel_func wheel_name="left" flag="1" />
+    <xacro:wheel_func wheel_name="right" flag="-1" />
+
+     <!-- 万向轮 -->
+    <xacro:property name="wan_wheel_radius" value="0.01" />
+    <xacro:property name="wan_wheel_mass" value="0.01" />
+    <xacro:property name="wan_wheel_x" value="${baseA_l / 2}" />
+    <xacro:property name="wan_wheel_z" value="${-(wan_wheel_radius + baseA_h / 2)}" />
+
+    <xacro:macro name="wan_wheel" params="name flag">
+        <link name="${name}_wheel">
+            <visual>
+                <geometry>
+                    <sphere radius="${wan_wheel_radius}" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <material name="wheel_color">
+                    <color rgba="0 0 0 0.3" />
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <sphere radius="${wan_wheel_radius}" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+            </collision>
+            <xacro:sphere_inertial_matrix m="${wan_wheel_mass}" r="${wan_wheel_radius}" />
+        </link>
+        <gazebo reference="${name}_wheel">
+            <material>Gazebo/Red</material>
+        </gazebo>
+            
+        <!-- 4.2 joint -->
+        <!-- 前轮 -->
+        <joint name="${name}2link" type="continuous">
+            <parent link="baseA_link" />
+            <child link="${name}_wheel" />
+            <origin xyz="${flag * wan_wheel_x} 0 ${wan_wheel_z}" rpy="0 0 0" />
+            <axis xyz="0 1 0" />
+        </joint>
+    </xacro:macro>
+    <xacro:wan_wheel name="f" flag="1" />
+    <xacro:wan_wheel name="b" flag="-1" />
+
+</robot>

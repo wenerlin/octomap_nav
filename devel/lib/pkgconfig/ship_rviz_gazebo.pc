@@ -1,0 +1,8 @@
+prefix=/home/zhanglin/ship_gazebo_ws/devel
+
+Name: ship_rviz_gazebo
+Description: Description of ship_rviz_gazebo
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

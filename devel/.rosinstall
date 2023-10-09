@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/zhanglin/ship_gazebo_ws/devel/setup.sh
